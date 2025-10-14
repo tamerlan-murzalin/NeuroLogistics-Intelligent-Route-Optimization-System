@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NeuroLogistics: Route Optimization</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: darkblue;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .form-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        input {
+            width: 80px;
+            margin: 0 5px;
+        }
+        button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Logistics Assistance System</h1>
+
+<div class="form-container">
+    <form method="POST">
+        Start Lat: <input type="text" name="start_lat" value="47.4979">
+        Start Lng: <input type="text" name="start_lng" value="19.0402">
+        End Lat: <input type="text" name="end_lat" value="46.2530">
+        End Lng: <input type="text" name="end_lng" value="20.1414">
+        <button type="submit">Show Route</button>
+    </form>
+</div>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    // Создаем карту и центрируем её примерно на середину маршрута
+    var map = L.map('map').setView([47, 19.5], 6);
+
+    // Тайлы OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Получаем маршрут из Flask
+    var route_points = {{ route_points|safe }};
+
+    // Добавляем линию маршрута
+    var route = L.polyline(route_points, {color: 'red'}).addTo(map);
+
+    // Добавляем маркеры для старта и конца
+    if (route_points.length > 0) {
+        L.marker(route_points[0]).addTo(map).bindPopup('Start').openPopup();
+        L.marker(route_points[route_points.length-1]).addTo(map).bindPopup('End');
+    }
+
+    // Масштабируем карту под маршрут
+    map.fitBounds(route.getBounds());
+</script>
+
+</body>
+</html>
