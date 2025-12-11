@@ -25,8 +25,8 @@
             text-align: center;
             margin-bottom: 10px;
         }
-        input {
-            width: 80px;
+        input, select {
+            width: 120px;
             margin: 0 5px;
         }
         button {
@@ -40,10 +40,38 @@
 
 <div class="form-container">
     <form method="POST">
-        Start Lat: <input type="text" name="start_lat" value="47.4979">
-        Start Lng: <input type="text" name="start_lng" value="19.0402">
-        End Lat: <input type="text" name="end_lat" value="46.2530">
-        End Lng: <input type="text" name="end_lng" value="20.1414">
+        Start Lat: <input type="text" name="start_lat" value="{{ start_lat }}">
+        Start Lng: <input type="text" name="start_lng" value="{{ start_lng }}">
+        End Lat: <input type="text" name="end_lat" value="{{ end_lat }}">
+        End Lng: <input type="text" name="end_lng" value="{{ end_lng }}">
+        
+        Start Time: <input type="time" name="start_time" value="{{ start_time }}">
+        
+        <!-- Calendar input for date selection -->
+        Select Date:
+        <input type="date" name="date" value="{{ date }}">
+        
+        <!-- Dynamic weekday dropdown, will auto-update based on selected date -->
+        Day of Week:
+        <select name="day_of_week" id="day_of_week">
+            <option value="1" {% if day_of_week == 1 %}selected{% endif %}>Monday</option>
+            <option value="2" {% if day_of_week == 2 %}selected{% endif %}>Tuesday</option>
+            <option value="3" {% if day_of_week == 3 %}selected{% endif %}>Wednesday</option>
+            <option value="4" {% if day_of_week == 4 %}selected{% endif %}>Thursday</option>
+            <option value="5" {% if day_of_week == 5 %}selected{% endif %}>Friday</option>
+            <option value="6" {% if day_of_week == 6 %}selected{% endif %}>Saturday</option>
+            <option value="7" {% if day_of_week == 7 %}selected{% endif %}>Sunday</option>
+        </select>
+
+        Vehicle Type:
+        <select name="vehicle_type">
+            <option value="car" {% if vehicle_type == "car" %}selected{% endif %}>Car</option>
+            <option value="truck" {% if vehicle_type == "truck" %}selected{% endif %}>Truck</option>
+            <option value="bike" {% if vehicle_type == "bike" %}selected{% endif %}>Bike</option>
+        </select>
+
+        Average Speed (km/h): <input type="text" name="avg_speed" value="{{ avg_speed }}">
+
         <button type="submit">Show Route</button>
     </form>
 </div>
@@ -54,28 +82,60 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-    // Создаем карту и центрируем её примерно на середину маршрута
+    // Create the map and center it around the middle of the route
     var map = L.map('map').setView([47, 19.5], 6);
 
-    // Тайлы OpenStreetMap
+    // OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Получаем маршрут из Flask
-    var route_points = {{ route_points|safe }};
+    // Check if route_points is not empty before attempting to render
+    {% if route_points %}
+        var route_points = {{ route_points|safe }};
 
-    // Добавляем линию маршрута
-    var route = L.polyline(route_points, {color: 'red'}).addTo(map);
+        // Add the route polyline to the map
+        var route = L.polyline(route_points, {color: 'red'}).addTo(map);
 
-    // Добавляем маркеры для старта и конца
-    if (route_points.length > 0) {
+        // Add markers for the start and end points
         L.marker(route_points[0]).addTo(map).bindPopup('Start').openPopup();
         L.marker(route_points[route_points.length-1]).addTo(map).bindPopup('End');
-    }
+        
+        // Fit the map to the bounds of the route
+        map.fitBounds(route.getBounds());
+    {% else %}
+        alert("Route could not be fetched. Please check the coordinates or try again.");
+    {% endif %}
 
-    // Масштабируем карту под маршрут
-    map.fitBounds(route.getBounds());
+    // Update the Day of Week dropdown based on the selected date
+    document.querySelector("input[name='date']").addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const dayOfWeek = selectedDate.getDay();  // Get the day of the week (0 = Sunday, 6 = Saturday)
+        document.getElementById("day_of_week").value = dayOfWeek === 0 ? 7 : dayOfWeek; // Adjust to match Monday=1, Sunday=7
+    });
+</script>
+
+<div class="form-container">
+    <h3>Base Travel Time: {{ base_travel_time }} minutes</h3>
+    <h3>Adjusted Travel Time: {{ adjusted_time }}</h3>
+    <h4>{{ explanation }}</h4>
+</div>
+
+<script>
+    // Allow the user to click on the map to set start and end points
+    var startMarker, endMarker;
+
+    map.on('click', function(e) {
+        if (!startMarker) {
+            startMarker = L.marker(e.latlng).addTo(map).bindPopup('Start').openPopup();
+            document.querySelector("input[name='start_lat']").value = e.latlng.lat;
+            document.querySelector("input[name='start_lng']").value = e.latlng.lng;
+        } else if (!endMarker) {
+            endMarker = L.marker(e.latlng).addTo(map).bindPopup('End').openPopup();
+            document.querySelector("input[name='end_lat']").value = e.latlng.lat;
+            document.querySelector("input[name='end_lng']").value = e.latlng.lng;
+        }
+    });
 </script>
 
 </body>
