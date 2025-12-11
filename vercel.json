@@ -4,13 +4,6 @@
         "src": "app.py",
         "use": "@vercel/python"
     }],
-    "functions": {
-        "api/*": {
-            "runtime": "python3.12",
-            "memory": 1024,
-            "maxDuration": 10
-        }
-    },
     "routes": [{
         "src": "/(.*)",
         "dest": "/app.py"
