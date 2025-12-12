@@ -1,11 +1,13 @@
 {
-    "version": 2,
     "builds": [{
         "src": "app.py",
-        "use": "@vercel/python"
+        "use": "@vercel/python",
+        "config": {
+            "maxLambdaSize": "50mb",
+            "memory": 1024
+        }
     }],
-    "routes": [{
-        "src": "/(.*)",
-        "dest": "/app.py"
-    }]
+    "env": {
+        "API_KEY": "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImE1YTNhMzliODg0ZDQ4NzBiYzgwMDU1NTkxYjNlNmIwIiwiaCI6Im11cm11cjY0In0="
+    }
 }
