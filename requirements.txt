@@ -3,9 +3,9 @@ gunicorn==23.0.0
 joblib==1.5.2
 openrouteservice==2.3.3
 requests==2.32.5
-scikit-learn==1.2.0  # Updated to a newer version that doesn't require distutils
+scikit-learn==1.2.0  # Updated to a compatible version with Python 3.12
 Werkzeug==3.1.3
-numpy>=1.23.0  # Updated to a newer version that doesn't require distutils
+numpy>=1.22.0  # Ensure numpy is compatible with the version of scikit-learn
 folium==0.20.0
 idna==3.10
 itsdangerous==2.2.0
