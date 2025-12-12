@@ -3,8 +3,8 @@
         "src": "app.py",
         "use": "@vercel/python",
         "config": {
-            "maxLambdaSize": "100mb", // Increased size limit
-            "memory": 2048 // Increased memory
+            "maxLambdaSize": "100mb",
+            "memory": 2048
         }
     }],
     "env": {
