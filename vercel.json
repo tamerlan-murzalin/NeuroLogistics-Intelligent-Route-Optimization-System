@@ -1,11 +1,10 @@
 {
-    "version": 2,
     "builds": [{
         "src": "app.py",
         "use": "@vercel/python",
         "config": {
-            "maxLambdaSize": "50mb",
-            "memory": 1024
+            "maxLambdaSize": "100mb", // Increased size limit
+            "memory": 2048 // Increased memory
         }
     }],
     "env": {
